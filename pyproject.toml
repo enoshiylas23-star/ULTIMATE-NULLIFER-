@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nullius"
+version = "0.1.0"
+description = "Nullius — an open, autonomous data-scientist system that optimizes for correctness, reproducibility, and statistical validity over impressive-looking answers."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+keywords = ["data-science", "automl", "statistics", "reproducibility", "ai-agent"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+# Optional: file readers beyond CSV (parquet/feather/arrow)
+io = ["pyarrow>=15"]
+# Optional: notebook helpers (used only in examples/)
+notebook = ["ipython"]
+dev = [
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+nullius = "nullius.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+filterwarnings = [
+    # Pandas 3.x deprecations should surface as errors in tests so we stay
+    # current rather than silently relying on removed behavior.
+    "error::FutureWarning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

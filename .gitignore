@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.coverage.*
+*.cover
+
+# Local / editor
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Local runtime artifacts (kept out of version control)
+artifacts/
+runs/
+*.log
+
+# Freebuff thread tooling state (project-id, preview helpers, logs)
+.freebuff/
