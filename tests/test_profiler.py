@@ -5,9 +5,6 @@ import json
 import pandas as pd
 import pytest
 
-from nullius.data import profile_dataframe
-from nullius.data.types import ColumnKind, Severity
-
 from adversarial import (  # type: ignore[import-not-found]
     binary_categorical_target,
     constants_and_all_missing,
@@ -26,6 +23,8 @@ from adversarial import (  # type: ignore[import-not-found]
     tiny,
     wide,
 )
+from nullius.data import profile_dataframe
+from nullius.data.types import ColumnKind, Severity
 from util import (  # type: ignore[import-not-found]
     association,
     codes,

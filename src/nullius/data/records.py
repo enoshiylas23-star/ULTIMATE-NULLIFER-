@@ -34,7 +34,7 @@ class Finding:
         return d
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> "Finding":
+    def from_dict(cls, d: dict[str, Any]) -> Finding:
         return cls(
             code=d["code"],
             severity=Severity[d["severity"]],

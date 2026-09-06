@@ -10,8 +10,9 @@ observes and reports.
 from __future__ import annotations
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from pandas.api import types as pdt
@@ -46,6 +47,8 @@ TARGET_DUP_EQUALITY = 0.999
 #: cap distinct values before Cramer's V becomes unreliable/costly
 CRAMERS_MAX_CATEGORIES = 500
 _TOP_ASSOCIATIONS = 25
+#: column roles that participate in target-duplicate / leakage scans
+_LEAK_SCAN_KINDS = (ColumnKind.NUMERIC, ColumnKind.CATEGORICAL, ColumnKind.BOOLEAN)
 
 
 def hash_file(path: str | Path) -> str:
@@ -281,11 +284,12 @@ def _profile_column_impl(name: str, series: pd.Series, n_rows: int) -> ColumnPro
                     detail={"datetime_ratio": round(classification.datetime_ratio, 6)},
                 )
             )
-        if dtime.median_gap_seconds is not None and dtime.largest_gap_seconds is not None:
-            if (
-                dtime.median_gap_seconds > 0
-                and dtime.largest_gap_seconds > 10 * dtime.median_gap_seconds
-            ):
+        if (
+            dtime.median_gap_seconds is not None
+            and dtime.largest_gap_seconds is not None
+            and dtime.median_gap_seconds > 0
+            and dtime.largest_gap_seconds > 10 * dtime.median_gap_seconds
+        ):
                 findings.append(
                     Finding(
                         code="DATETIME_IRREGULAR",
@@ -340,7 +344,10 @@ def _profile_column_impl(name: str, series: pd.Series, n_rows: int) -> ColumnPro
             Finding(
                 code="UNSUPPORTED_COL",
                 severity=Severity.LOW,
-                message=f"'{name}' has stored type '{stored_dtype}', which this profiler does not model.",
+                message=(
+                    f"'{name}' has stored type '{stored_dtype}', which this "
+                    "profiler does not model."
+                ),
                 columns=(name,),
                 method="stored dtype inspection",
                 detail={"stored_dtype": stored_dtype},
@@ -587,7 +594,7 @@ def _target_analysis(
     # -- duplicate-of-target: the same values under another column name ------ #
     if tkind in (ColumnKind.CATEGORICAL, ColumnKind.BOOLEAN, ColumnKind.NUMERIC):
         for p in profiles:
-            if p.name == target or p.kind not in (ColumnKind.NUMERIC, ColumnKind.CATEGORICAL, ColumnKind.BOOLEAN):
+            if p.name == target or p.kind not in _LEAK_SCAN_KINDS:
                 continue
             eq = _equality_fraction(df[p.name], tcol)
             if eq is not None and eq >= TARGET_DUP_EQUALITY:
@@ -826,7 +833,7 @@ def profile_dataframe(
         target=target,
         source_path=str(source_path) if source_path else None,
         source_sha256=source_sha256,
-        created_utc=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        created_utc=datetime.now(UTC).isoformat(timespec="seconds"),
         engine_version=nullius.__version__,
     )
     return DataUnderstandingReport(

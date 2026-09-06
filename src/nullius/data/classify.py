@@ -106,8 +106,6 @@ def _datetime_ratio(series: pd.Series) -> float | None:
 
 def classify_column(name: str, series: pd.Series, n_nonnull: int) -> Classification:
     """Infer the role of ``series``. Never mutates ``series``."""
-    lower = name.strip().lower()
-
     if pdt.is_datetime64_any_dtype(series):
         return Classification(ColumnKind.DATETIME, reason="stored as datetime dtype")
     if pdt.is_bool_dtype(series):

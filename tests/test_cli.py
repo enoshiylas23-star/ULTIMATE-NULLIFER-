@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import pandas as pd
+
 from nullius.cli import main
 
 
@@ -19,7 +20,9 @@ def test_cli_profile_json(tmp_path, capsys):
     df.to_csv(p, index=False)
     out = tmp_path / "report.json"
 
-    rc = main(["data", "profile", str(p), "--target", "churn", "--format", "json", "--out", str(out)])
+    rc = main(
+        ["data", "profile", str(p), "--target", "churn", "--format", "json", "--out", str(out)]
+    )
     assert rc == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["overview"]["source_sha256"]

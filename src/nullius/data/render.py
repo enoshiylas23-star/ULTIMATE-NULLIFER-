@@ -53,7 +53,10 @@ def _table(headers: list[str], rows: list[list[str]]) -> str:
 
 def _finding_line(f: Finding) -> str:
     cols = ", ".join(f.columns) if f.columns else "—"
-    msg = f.message if len(f.message) <= _MAX_FINDING_CHARS else f.message[:_MAX_FINDING_CHARS] + "…"
+    if len(f.message) <= _MAX_FINDING_CHARS:
+        msg = f.message
+    else:
+        msg = f.message[:_MAX_FINDING_CHARS] + "…"
     return f"- **[{f.severity.name}]** `{f.code}` ({cols}) {msg}"
 
 
@@ -170,7 +173,11 @@ def render_markdown(report: DataUnderstandingReport, *, max_rows: int = 60) -> s
         lines.append("")
 
     # --- categorical ------------------------------------------------------ #
-    cat_cols = [c for c in report.columns if c.kind in (ColumnKind.CATEGORICAL, ColumnKind.BOOLEAN) and c.categorical]
+    cat_cols = [
+        c
+        for c in report.columns
+        if c.kind in (ColumnKind.CATEGORICAL, ColumnKind.BOOLEAN) and c.categorical
+    ]
     if cat_cols:
         lines.append("## 4. Categorical columns")
         lines.append("")
@@ -212,10 +219,13 @@ def render_markdown(report: DataUnderstandingReport, *, max_rows: int = 60) -> s
         for c in dt_cols[:max_rows]:
             st = c.datetime
             assert st is not None
-            gap = (
-                _fmt_duration_secs(st.median_gap_seconds) if st.median_gap_seconds is not None else "–"
+            if st.median_gap_seconds is not None:
+                gap = _fmt_duration_secs(st.median_gap_seconds)
+            else:
+                gap = "–"
+            span = (
+                _fmt_duration_secs(st.span_seconds) if st.span_seconds is not None else "–"
             )
-            span = _fmt_duration_secs(st.span_seconds) if st.span_seconds is not None else "–"
             dt_rows.append(
                 [
                     _esc(c.name),

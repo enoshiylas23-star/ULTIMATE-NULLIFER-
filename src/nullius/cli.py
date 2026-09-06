@@ -7,6 +7,7 @@ own subcommands behind the same two-level dispatch.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import sys
 from pathlib import Path
@@ -17,10 +18,9 @@ from nullius.data import load_dataset, profile_dataframe
 def _ensure_utf8_stdout() -> None:
     """Reports use Unicode (…, –, ⚠); write UTF-8 even on cp1252 consoles."""
     for stream in (sys.stdout, sys.stderr):
-        try:
+        # not a TextIOWrapper (e.g. captured buffers) or already closed
+        with contextlib.suppress(AttributeError, ValueError):
             stream.reconfigure(encoding="utf-8", errors="replace")
-        except (AttributeError, ValueError):  # not a TextIOWrapper / closed
-            pass
 
 
 def _build_parser() -> argparse.ArgumentParser:

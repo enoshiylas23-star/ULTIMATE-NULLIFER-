@@ -19,7 +19,7 @@ class Severity(enum.IntEnum):
     CRITICAL = 4
 
 
-class ColumnKind(str, enum.Enum):
+class ColumnKind(enum.StrEnum):
     """Inferred role of a column after inspection.
 
     This is an *inference*, recorded alongside the stored dtype so the two can
